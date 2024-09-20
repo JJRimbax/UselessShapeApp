@@ -10,7 +10,7 @@ export default function App() {
 
   const handleReset = () => {
     setReset(true);
-    setTimeout(() => setReset(false), 0);
+    setTimeout(() => setReset(false), 0); 
   };
 
   return (
@@ -24,5 +24,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f5f5f5',
   },
 });

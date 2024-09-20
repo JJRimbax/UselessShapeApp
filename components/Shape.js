@@ -55,6 +55,7 @@ function Shape({ x, y, size, color, shape }) {
             width: 0,
             height: 0,
             backgroundColor: 'transparent',
+            borderStyle: 'solid',
             borderLeftWidth: size / 2,
             borderRightWidth: size / 2,
             borderBottomWidth: size,

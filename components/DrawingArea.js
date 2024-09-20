@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, StyleSheet, PanResponder } from 'react-native';
 import Shape from './Shape';
 
 function DrawingArea({ shape, color, reset }) {
   const [shapes, setShapes] = useState([]);
-  const [currentShape, setCurrentShape] = useState(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const sizeRef = useRef(10);
+  const growInterval = useRef(null);
+  const currentShapeRef = useRef(null);
 
   const getRandomColor = () => {
     const colors = ['red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 'cyan', 'black', 'white'];
@@ -14,59 +13,72 @@ function DrawingArea({ shape, color, reset }) {
   };
 
   const getRandomShape = () => {
-    const shapes = ['circle', 'square', 'triangle'];
-    return shapes[Math.floor(Math.random() * shapes.length)];
+    const shapesArray = ['circle', 'square', 'triangle'];
+    return shapesArray[Math.floor(Math.random() * shapesArray.length)];
   };
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onPanResponderGrant: (evt) => {
-        const posX = evt.nativeEvent.locationX;
-        const posY = evt.nativeEvent.locationY;
-        sizeRef.current = 10;
-        const newShape = {
-          x: posX,
-          y: posY,
-          size: sizeRef.current,
-          color: color === 'random' ? getRandomColor() : color,
-          shape: shape === 'random' ? getRandomShape() : shape,
-        };
-        setCurrentShape(newShape);
-        setIsDrawing(true);
-      },
-      onPanResponderMove: () => {
-        if (isDrawing) {
-          sizeRef.current += 2;
-          setCurrentShape((prevShape) => ({
-            ...prevShape,
-            size: sizeRef.current,
-          }));
-        }
-      },
-      onPanResponderRelease: () => {
-        if (currentShape) {
-          setShapes((prevShapes) => [...prevShapes, currentShape]);
-          setCurrentShape(null);
-          setIsDrawing(false);
-        }
-      },
-    })
-  ).current;
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onPanResponderGrant: (evt) => {
+          const posX = evt.nativeEvent.locationX;
+          const posY = evt.nativeEvent.locationY;
+          const initialSize = 10;
+          const newShape = {
+            id: Date.now() + Math.random(), // Génération d'un identifiant unique
+            x: posX,
+            y: posY,
+            size: initialSize,
+            color: color === 'random' ? getRandomColor() : color,
+            shape: shape === 'random' ? getRandomShape() : shape,
+          };
+          currentShapeRef.current = newShape;
+          setShapes((prevShapes) => [...prevShapes, currentShapeRef.current]);
+
+          // Démarrer l'augmentation de la taille
+          growInterval.current = setInterval(() => {
+            setShapes((prevShapes) =>
+              prevShapes.map((s) =>
+                s.id === currentShapeRef.current.id ? { ...s, size: s.size + 2 } : s
+              )
+            );
+          }, 50);
+        },
+        onPanResponderRelease: () => {
+          if (growInterval.current) {
+            clearInterval(growInterval.current);
+            growInterval.current = null;
+            currentShapeRef.current = null;
+          }
+        },
+        onPanResponderTerminate: () => {
+          if (growInterval.current) {
+            clearInterval(growInterval.current);
+            growInterval.current = null;
+            currentShapeRef.current = null;
+          }
+        },
+      }),
+    [shape, color]
+  );
 
   useEffect(() => {
     if (reset) {
       setShapes([]);
-      setCurrentShape(null);
+      currentShapeRef.current = null;
+      if (growInterval.current) {
+        clearInterval(growInterval.current);
+        growInterval.current = null;
+      }
     }
   }, [reset]);
 
   return (
     <View style={styles.drawingArea} {...panResponder.panHandlers}>
-      {shapes.map((shapeProps, index) => (
-        <Shape key={index} {...shapeProps} />
+      {shapes.map((shapeItem) => (
+        <Shape key={shapeItem.id} {...shapeItem} />
       ))}
-      {currentShape && <Shape {...currentShape} />}
     </View>
   );
 }
@@ -74,7 +86,6 @@ function DrawingArea({ shape, color, reset }) {
 const styles = StyleSheet.create({
   drawingArea: {
     flex: 1,
-    backgroundColor: '#fff',
   },
 });
 
