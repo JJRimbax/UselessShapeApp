@@ -1,14 +1,13 @@
-// components/BottomMenu.js
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons'; // Import de FontAwesome
-import Modal from 'react-native-modal'; // Import de react-native-modal
+import { FontAwesome } from '@expo/vector-icons'; 
+import Modal from 'react-native-modal';
 
 function BottomMenu({ isVisible, toggleMenu, setShape, setColor, handleReset, selectedShape, selectedColor }) {
   const COLORS = ['red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 'cyan', 'black', 'white'];
   const shapes = ['circle', 'square', 'triangle', 'random'];
 
-  // Fonction pour obtenir l'icône correspondante à une forme
+
   const getShapeIcon = (shape) => {
     switch(shape) {
       case 'circle':
@@ -16,7 +15,7 @@ function BottomMenu({ isVisible, toggleMenu, setShape, setColor, handleReset, se
       case 'square':
         return 'square';
       case 'triangle':
-        return 'caret-up'; // Utilisation d'un caret-up comme substitut pour triangle
+        return 'caret-up'; 
       case 'random':
         return 'random';
       default:
@@ -125,7 +124,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    elevation: 5, // Pour Android
+    elevation: 5, 
   },
   handle: {
     alignItems: 'center',
@@ -138,7 +137,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ccc',
   },
   content: {
-    // Styles pour le contenu
+
   },
   heading: {
     fontWeight: '600',

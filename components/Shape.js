@@ -1,18 +1,20 @@
+
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
+import { Animated, StyleSheet } from 'react-native';
 
 function Shape({ x, y, size, color, shape }) {
   const scaleAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    console.log(`Rendering shape: ${shape} at (${x}, ${y}) with size: ${size} and color: ${color}`);
     Animated.spring(scaleAnim, {
       toValue: 1,
       friction: 5,
       useNativeDriver: true,
     }).start();
-  }, []);
+  }, [shape, x, y, size, color]);
 
-  const commonStyle = {
+  const animatedStyle = {
     position: 'absolute',
     left: x - size / 2,
     top: y - size / 2,
@@ -23,7 +25,7 @@ function Shape({ x, y, size, color, shape }) {
     return (
       <Animated.View
         style={[
-          commonStyle,
+          animatedStyle,
           {
             width: size,
             height: size,
@@ -37,7 +39,7 @@ function Shape({ x, y, size, color, shape }) {
     return (
       <Animated.View
         style={[
-          commonStyle,
+          animatedStyle,
           {
             width: size,
             height: size,
@@ -50,7 +52,7 @@ function Shape({ x, y, size, color, shape }) {
     return (
       <Animated.View
         style={[
-          commonStyle,
+          animatedStyle,
           {
             width: 0,
             height: 0,
