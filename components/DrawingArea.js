@@ -17,51 +17,54 @@ function DrawingArea({ shape, color, reset }) {
     return shapesArray[Math.floor(Math.random() * shapesArray.length)];
   };
 
-  const panResponder = useMemo(
-    () =>
-      PanResponder.create({
-        onStartShouldSetPanResponder: () => true,
-        onPanResponderGrant: (evt) => {
-          const posX = evt.nativeEvent.locationX;
-          const posY = evt.nativeEvent.locationY;
-          const initialSize = 10;
-          const newShape = {
-            id: Date.now() + Math.random(), // Génération d'un identifiant unique
-            x: posX,
-            y: posY,
-            size: initialSize,
-            color: color === 'random' ? getRandomColor() : color,
-            shape: shape === 'random' ? getRandomShape() : shape,
-          };
-          currentShapeRef.current = newShape;
-          setShapes((prevShapes) => [...prevShapes, currentShapeRef.current]);
 
-          // Démarrer l'augmentation de la taille
-          growInterval.current = setInterval(() => {
-            setShapes((prevShapes) =>
-              prevShapes.map((s) =>
-                s.id === currentShapeRef.current.id ? { ...s, size: s.size + 2 } : s
-              )
-            );
-          }, 50);
-        },
-        onPanResponderRelease: () => {
-          if (growInterval.current) {
-            clearInterval(growInterval.current);
-            growInterval.current = null;
-            currentShapeRef.current = null;
-          }
-        },
-        onPanResponderTerminate: () => {
-          if (growInterval.current) {
-            clearInterval(growInterval.current);
-            growInterval.current = null;
-            currentShapeRef.current = null;
-          }
-        },
-      }),
-    [shape, color]
-  );
+  useEffect(() => {
+    console.log(`DrawingArea: shape = ${shape}, color = ${color}`);
+  }, [shape, color]);
+
+  const panResponder = useMemo(() => 
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderGrant: (evt, gestureState) => {
+        const { locationX, locationY } = evt.nativeEvent;
+        console.log(`Touch at x: ${locationX}, y: ${locationY}`);
+
+        const initialSize = 10;
+        const newShape = {
+          id: Date.now() + Math.random(), 
+          x: locationX,
+          y: locationY,
+          size: initialSize,
+          color: color === 'random' ? getRandomColor() : color,
+          shape: shape === 'random' ? getRandomShape() : shape,
+        };
+        console.log(`Creating new shape: ${JSON.stringify(newShape)}`);
+        currentShapeRef.current = newShape;
+        setShapes(prevShapes => [...prevShapes, currentShapeRef.current]);
+
+        growInterval.current = setInterval(() => {
+          setShapes(prevShapes => 
+            prevShapes.map(s => 
+              s.id === currentShapeRef.current.id ? { ...s, size: s.size + 2 } : s
+            )
+          );
+        }, 50);
+      },
+      onPanResponderRelease: () => {
+        if (growInterval.current) {
+          clearInterval(growInterval.current);
+          growInterval.current = null;
+          currentShapeRef.current = null;
+        }
+      },
+      onPanResponderTerminate: () => {
+        if (growInterval.current) {
+          clearInterval(growInterval.current);
+          growInterval.current = null;
+          currentShapeRef.current = null;
+        }
+      },
+    }), [shape, color]);
 
   useEffect(() => {
     if (reset) {
@@ -71,12 +74,13 @@ function DrawingArea({ shape, color, reset }) {
         clearInterval(growInterval.current);
         growInterval.current = null;
       }
+      console.log('DrawingArea: Reset effectué.');
     }
   }, [reset]);
 
   return (
     <View style={styles.drawingArea} {...panResponder.panHandlers}>
-      {shapes.map((shapeItem) => (
+      {shapes.map(shapeItem => (
         <Shape key={shapeItem.id} {...shapeItem} />
       ))}
     </View>
@@ -86,6 +90,7 @@ function DrawingArea({ shape, color, reset }) {
 const styles = StyleSheet.create({
   drawingArea: {
     flex: 1,
+    backgroundColor: '#fff', 
   },
 });
 
