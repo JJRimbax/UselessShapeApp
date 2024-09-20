@@ -10,12 +10,18 @@ export default function App() {
 
   const handleReset = () => {
     setReset(true);
-    setTimeout(() => setReset(false), 0); 
+    setTimeout(() => setReset(false), 0);
   };
 
   return (
     <View style={styles.container}>
-      <Menu setShape={setShape} setColor={setColor} handleReset={handleReset} />
+      <Menu
+        setShape={setShape}
+        setColor={setColor}
+        handleReset={handleReset}
+        selectedShape={shape}
+        selectedColor={color}
+      />
       <DrawingArea shape={shape} color={color} reset={reset} />
     </View>
   );
